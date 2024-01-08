@@ -1,90 +1,73 @@
-import socket
-import sqlite3
-import secrets
-import dbChecker
-from datetime import datetime
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, request, redirect, url_for
+# from flask_admin import Admin
+# from flask_admin.contrib.sqla import ModelView
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.secret_key = secrets.token_urlsafe(32)
+# /// = relative path, //// = absolute path
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# set optional bootswatch theme
+# app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
 
+db = SQLAlchemy(app)
 
-def currentDate():
-    return datetime.now().strftime("%d.%m.%y")
+class Todo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    complete = db.Column(db.Boolean)
 
+# admin = Admin(app, name='TODOApp', template_mode='bootstrap3')
 
-def currentTime():
-    return datetime.now().strftime("%H:%M")
+with app.app_context():
+    db.create_all()
+    # admin.add_view(ModelView(Todo, db.session))
 
+@app.get("/helo")
+def helo():
+    return "Hello, World!"
 
-@app.route("/")
+@app.get("/helo2")
+def helo2():
+    return "<html><body><h1>Hello, World!</h1></body></html>"
+
+@app.get("/")
 def index():
-    connection = sqlite3.connect("todos.db")
-    cursor = connection.cursor()
-    cursor.execute("select * from todos")
-    todos = cursor.fetchall()
-    return render_template("/index.html", todos=todos)
+    return render_template("index.html")
+
+@app.get("/list")
+def list():
+    todo_list = db.session.query(Todo).all()
+    return render_template("list.html", todo_list=todo_list)
+
+@app.get("/todo/<int:todo_id>")
+def todo(todo_id):    
+    todo = db.session.query(Todo).filter(Todo.id == todo_id).first()
+    if todo is None:
+        return f"No Todo item {todo_id} found.", 404    
+    return render_template("todo.html", todo=todo)
+
+# @app.route("/add", methods=["POST"])
+@app.post("/add")
+def add():
+    title = request.form.get("title")
+    new_todo = Todo(title=title, complete=False)
+    db.session.add(new_todo)
+    db.session.commit()
+    return redirect(url_for("list"))
 
 
-@app.route("/add/<todo>")
-def add(todo):
-    connection = sqlite3.connect("todos.db")
-    cursor = connection.cursor()
-    cursor.execute(
-        f'insert into todos(todo,date,time) values("{todo}","{currentDate()}","{currentTime()}")'
-    )
-    connection.commit()
-    return redirect("/")
+@app.get("/update/<int:todo_id>")
+def update(todo_id):
+    todo = db.session.query(Todo).filter(Todo.id == todo_id).first()
+    todo.complete = not todo.complete
+    db.session.commit()
+    return redirect(url_for("list"))
 
 
-@app.route("/check/<int:id>")
-def check(id):
-    connection = sqlite3.connect("todos.db")
-    cursor = connection.cursor()
-    cursor.execute(f'update todos set status = "True" where id = {id}')
-    cursor.execute(f'update todos set editDate = "{currentDate()}" where id = {id}')
-    cursor.execute(f'update todos set editTime = "{currentTime()}" where id = {id}')
-    connection.commit()
-    return redirect("/")
-
-
-@app.route("/uncheck/<int:id>")
-def uncheck(id):
-    connection = sqlite3.connect("todos.db")
-    cursor = connection.cursor()
-    cursor.execute(f'update todos set status = "False" where id = {id}')
-    connection.commit()
-    return redirect("/")
-
-
-@app.route("/edit/<int:id>/<todo>")
-def edit(id, todo):
-    connection = sqlite3.connect("todos.db")
-    cursor = connection.cursor()
-    cursor.execute(f'update todos set todo = "{todo}" where id = {id}')
-    connection.commit()
-    return redirect("/")
-
-
-@app.route("/delete/<int:id>")
-def delete(id):
-    connection = sqlite3.connect("todos.db")
-    cursor = connection.cursor()
-    cursor.execute(f"delete from todos where id = {id}")
-    cursor.execute(f"update sqlite_sequence set seq = seq-1")
-    connection.commit()
-    return redirect("/")
-
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template("404.html"), 404
-
-
-if __name__ == "__main__":
-    app.run(
-        debug=True,
-        # host=socket.gethostbyname(socket.gethostname()),
-        host="0.0.0.0",
-        port=5050,
-    )
+@app.get("/delete/<int:todo_id>")
+def delete(todo_id):
+    todo = db.session.query(Todo).filter(Todo.id == todo_id).first()
+    db.session.delete(todo)
+    db.session.commit()
+    return redirect(url_for("list"))

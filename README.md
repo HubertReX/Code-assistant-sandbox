@@ -1,40 +1,36 @@
-# [flaskToDo✅](https://dogukanurker.com/flasktodo)
+# How to start
 
-Simple todo app built with Flask.
-<br/>
-[Contact](mailto:dogukanurker@icloud.com)<br/>
-[Dogukan Urker](https://dogukanurker.com)
-### [Demo Video 📺](https://youtu.be/GmPeXhBiihI)
-|              Desktop               |              Mobile               |
-| :--------------------------------: | :-------------------------------: |
-| ![appDesktop](/images/desktop.png) | ![appMobile](/images/mobile.jpeg) |
+## Windows
 
-## Requirements 📦
+```console
+REM initialization
+python -m venv .venv
+call .venv\Scripts\activate
 
-- Flask
-- Flaskwebgui <sub><sup>(if you run desktop.py)</sup></sub>
+pip install -r requirements.txt
 
-## Installation ⬇️
+REM change firewall settings to open port 5000 for incoming TCP trafic (run in powershell as Administrator):
+REM netsh advfirewall firewall add rule name="Open Port 5000 for Flask web server" dir=in action=allow protocol=TCP localport=5000
 
-download source code from Github 💾
-`git clone https://github.com/DogukanUrker/flaskToDo.git`
+set FLASK_APP=app.py
+set FLASK_ENV=development
+REM run in debug mode (auto reload on code change)
+set FLASK_DEBUG=1
+flask run --host=0.0.0.0
+```
 
-go to directory 📁
-`cd flaskToDo`
+## Linux/MacOS
 
-install requirements.txt 🔽
-`pip install -r requirements.txt`
+```console
+# initialization
+python -m venv .venv
+source .venv/bin/activate
 
-it's ready to run 🎉
-`python app.py`
-or
-`python desktop.py`
-for run flaskToDo as a desktop app 💯
+pip install -r requirements.txt
 
-### Contributors 💕
-
-<a href="https://github.com/dogukanurker"><img src="https://avatars.githubusercontent.com/u/62756402" title="ngryman" width="80" height="80"></a>
-
-### Support 💰
-
-<a href="https://dogukanurker.com/donate" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/arial-red.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+export FLASK_APP=app.py
+export FLASK_ENV=development
+# run in debug mode (auto reload on code change)
+export FLASK_DEBUG=1
+flask run --host=0.0.0.0
+```
