@@ -84,5 +84,7 @@ def page_not_found(e):
 if __name__ == "__main__":
     app.run(
         debug=True,
-        host=socket.gethostbyname(socket.gethostname()),
+        # host=socket.gethostbyname(socket.gethostname()),
+        host="0.0.0.0",
+        port=5050,
     )
