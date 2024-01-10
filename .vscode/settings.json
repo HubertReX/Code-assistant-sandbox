@@ -1,5 +1,9 @@
 {
     "cSpell.words": [
+        "bootswatch",
+        "pytest",
+        "sqla",
+        "sqlalchemy",
         "todos"
     ]
 }

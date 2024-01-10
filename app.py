@@ -1,6 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for
-# from flask_admin import Admin
-# from flask_admin.contrib.sqla import ModelView
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -17,26 +15,15 @@ class Todo(db.Model):
     title = db.Column(db.String(100))
     complete = db.Column(db.Boolean)
 
-# admin = Admin(app, name='TODOApp', template_mode='bootstrap3')
-
 with app.app_context():
     db.create_all()
-    # admin.add_view(ModelView(Todo, db.session))
-
-@app.get("/helo")
-def helo():
-    return "Hello, World!"
-
-@app.get("/helo2")
-def helo2():
-    return "<html><body><h1>Hello, World!</h1></body></html>"
 
 @app.get("/")
 def index():
     return render_template("index.html")
 
 @app.get("/list")
-def list():
+def list():    
     todo_list = db.session.query(Todo).all()
     return render_template("list.html", todo_list=todo_list)
 
@@ -44,10 +31,9 @@ def list():
 def todo(todo_id):    
     todo = db.session.query(Todo).filter(Todo.id == todo_id).first()
     if todo is None:
-        return f"No Todo item {todo_id} found.", 404    
+        return f"No Todo item {todo_id} found.", 404
     return render_template("todo.html", todo=todo)
 
-# @app.route("/add", methods=["POST"])
 @app.post("/add")
 def add():
     title = request.form.get("title")
