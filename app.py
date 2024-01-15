@@ -5,8 +5,7 @@ app = Flask(__name__)
 # /// = relative path, //// = absolute path
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# set optional bootswatch theme
-# app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+
 
 db = SQLAlchemy(app)
 
@@ -55,5 +54,4 @@ def update(todo_id):
 def delete(todo_id):
     todo = db.session.query(Todo).filter(Todo.id == todo_id).first()
     db.session.delete(todo)
-    db.session.commit()
     return redirect(url_for("list"))

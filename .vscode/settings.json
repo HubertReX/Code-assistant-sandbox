@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "bootswatch",
+        "jsonify",
         "pytest",
         "sqla",
         "sqlalchemy",
